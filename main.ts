@@ -8,6 +8,13 @@ import { fileURLToPath } from 'node:url';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+const word = readFileSync(join(here, 'entry.txt'), 'utf8').trim();
+
+// The site's gate takes 1 to 30 characters of text that is not only white space, so refuse
+// to write a blank or oversized entry instead of sending the harness a file it will throw out.
+if (word.length < 1 || word.length > 30 || word.includes('\n')) {
+  throw new Error(`entry.txt must be one word of 1-30 characters, got ${JSON.stringify(word)}`);
+}
 
 mkdirSync(out, { recursive: true });
-writeFileSync(join(out, 'entry.txt'), readFileSync(join(here, 'entry.txt'), 'utf8'), 'utf8');
+writeFileSync(join(out, 'entry.txt'), word + '\n', 'utf8');
